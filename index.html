@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Square Defence · Menu</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      background: #0a0a0a;
+      font-family: Arial, 'Segoe UI', system-ui, sans-serif;
+      color: #eee;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 20% 30%, #141414, #050505 90%);
+      position: relative;
+    }
+
+    /* REMOVED: animated grid — it was causing repaint cost */
+    /* REMOVED: floating decorative squares — they were causing repaint cost */
+
+    /* ----- MENU CONTAINER ----- */
+    .menu {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 2rem 1.6rem 1.8rem;
+      background: #101010;
+      border: 2px solid #d40000;
+      border-radius: 20px;
+      box-shadow: 0 0 25px rgba(255, 40, 40, 0.2);
+      width: min(90vw, 560px);
+    }
+
+    .title {
+      font-size: clamp(2.4rem, 8vw, 4rem);
+      font-weight: 900;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #f22;
+      text-shadow: 0 0 10px #f00, 0 0 30px #c00;
+      line-height: 1.05;
+      margin-bottom: 0.2rem;
+    }
+
+    .subtitle {
+      font-size: clamp(0.85rem, 2.2vw, 1.1rem);
+      font-weight: 400;
+      color: #bbb;
+      letter-spacing: 2px;
+      margin-bottom: 1.6rem;
+      text-transform: uppercase;
+      border-bottom: 1px solid rgba(255, 60, 60, 0.35);
+      padding-bottom: 0.6rem;
+      width: 80%;
+    }
+
+    .stats { margin-bottom: 1.8rem; }
+
+    .stat-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: clamp(0.95rem, 2vw, 1.15rem);
+      background: #000;
+      border: 1px solid #3a3a3a;
+      border-radius: 6px;
+      padding: 0.5rem 1.2rem;
+    }
+
+    .stat-label { color: #aaa; font-weight: 400; letter-spacing: 1px; }
+    .stat-value {
+      color: #ffd700;
+      font-weight: 700;
+      text-shadow: 0 0 10px #ffb700;
+      min-width: 2.5ch;
+      text-align: left;
+    }
+
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.9rem;
+      width: 100%;
+      margin-bottom: 1.4rem;
+    }
+
+    .btn {
+      background: #d40000;
+      color: #fff;
+      border: 2px solid #f44;
+      padding: 0.8rem 2rem;
+      font-size: clamp(1rem, 2.4vw, 1.25rem);
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      width: min(100%, 300px);
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      box-shadow: none;
+      /* fast press feedback */
+      transition: background 0.05s;
+    }
+
+    .btn:hover { background: #f22; }
+    .btn:active { background: #b00; transform: scale(0.98); }
+
+    .btn.secondary { background: #1a7a1a; border-color: #3fb83f; }
+    .btn.secondary:hover { background: #26a326; }
+    .btn.secondary:active { background: #0e5a0e; }
+
+    .footer-note {
+      font-size: clamp(0.65rem, 1.6vw, 0.8rem);
+      color: #666;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 0.2rem;
+      border-top: 1px solid rgba(255, 60, 60, 0.15);
+      padding-top: 0.9rem;
+      width: 70%;
+    }
+
+    /* ---------- HOW TO PLAY OVERLAY (lightweight) ---------- */
+    #howToOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    #howToOverlay.open {
+      display: flex;
+    }
+
+    .overlay-panel {
+      background: #141414;
+      border: 2px solid #ffcc44;
+      border-radius: 12px;
+      padding: 1.6rem 1.4rem 1.2rem;
+      width: min(94vw, 520px);
+      max-height: 90vh;
+      overflow-y: auto;
+      text-align: center;
+      box-shadow: 0 0 30px rgba(255, 200, 60, 0.35);
+    }
+
+    .overlay-panel h2 {
+      color: #ffcc44;
+      font-size: clamp(1.4rem, 4vw, 2rem);
+      margin-bottom: 1rem;
+      text-shadow: 0 0 10px #ff9900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .overlay-panel p {
+      font-size: clamp(0.9rem, 2vw, 1.05rem);
+      color: #ddd;
+      line-height: 1.6;
+      margin-bottom: 1.4rem;
+      text-align: left;
+    }
+
+    .overlay-panel p strong {
+      color: #ff8080;
+    }
+
+    .close-btn {
+      background: #444;
+      border: 2px solid #777;
+      color: #fff;
+      padding: 0.7rem 2rem;
+      font-size: clamp(0.95rem, 2vw, 1.1rem);
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .close-btn:hover { background: #555; }
+    .close-btn:active { background: #333; transform: scale(0.97); }
+
+    /* ---------- RESPONSIVE ---------- */
+    @media (orientation: landscape) and (max-height: 520px) {
+      .menu {
+        width: min(94vw, 820px);
+        padding: 1.2rem 2.2rem 1rem;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.6rem 1.6rem;
+        border-radius: 16px;
+      }
+      .title { font-size: clamp(2rem, 6vw, 3.2rem); margin-bottom: 0; width: 100%; text-align: center; }
+      .subtitle { font-size: 0.8rem; margin-bottom: 0.4rem; padding-bottom: 0.3rem; width: 60%; }
+      .stats { margin-bottom: 0.4rem; width: 100%; display: flex; justify-content: center; }
+      .stat-row { padding: 0.35rem 1rem; font-size: 0.9rem; }
+      .button-group { flex-direction: row; justify-content: center; gap: 1rem; margin-bottom: 0.4rem; width: 100%; }
+      .btn { width: auto; min-width: 180px; padding: 0.7rem 1.6rem; font-size: 1rem; }
+      .footer-note { font-size: 0.65rem; padding-top: 0.5rem; margin-top: 0; width: 100%; }
+    }
+
+    @media (orientation: portrait) and (max-width: 420px) {
+      .menu { padding: 1.6rem 1rem 1.4rem; border-radius: 16px; width: 94vw; }
+      .title { font-size: clamp(2rem, 10vw, 3rem); letter-spacing: 2px; }
+      .subtitle { font-size: 0.75rem; margin-bottom: 1.2rem; }
+      .stat-row { padding: 0.4rem 0.9rem; font-size: 0.9rem; }
+      .btn { padding: 0.7rem 1.4rem; font-size: 1rem; letter-spacing: 1px; }
+      .footer-note { font-size: 0.6rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="menu" id="mainMenu">
+    <h1 class="title">Square<br>Defence</h1>
+    <div class="subtitle">Defend the grid</div>
+
+    <div class="stats">
+      <div class="stat-row">
+        <span class="stat-label">HIGHSCORE</span>
+        <span class="stat-value" id="menuHighscore">0</span>
+      </div>
+    </div>
+
+    <div class="button-group">
+      <button class="btn" id="playBtn">PLAY</button>
+      <button class="btn secondary" id="howToBtn">HOW TO PLAY</button>
+    </div>
+
+    <div class="footer-note">
+      v1.0 · destroy the squares
+    </div>
+  </div>
+
+  <!-- HOW TO PLAY OVERLAY -->
+  <div id="howToOverlay">
+    <div class="overlay-panel">
+      <h2>How to Play</h2>
+      <p>
+        Place circles to defend the <strong>rainbow circle</strong> from evil Squares.
+        Each square has different abilities and health.
+        There are <strong>bosses</strong> too so watch out.<br><br>
+        <strong>THIS IS AN ENDLESS GAME SO DON'T LOSE.</strong>
+      </p>
+      <button class="close-btn" id="closeHowToBtn">CLOSE</button>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      "use strict";
+
+      function getHighscore() {
+        return Number(localStorage.getItem("squareDefenceHighscore")) || 0;
+      }
+
+      function updateHighscoreDisplay() {
+        var el = document.getElementById("menuHighscore");
+        if (el) el.textContent = getHighscore();
+      }
+
+      function startGame() {
+        alert("Square Defence will start here.\n\n(Full game coming soon.)");
+      }
+
+      function openHowTo() {
+        document.getElementById("howToOverlay").classList.add("open");
+      }
+
+      function closeHowTo() {
+        document.getElementById("howToOverlay").classList.remove("open");
+      }
+
+      document.addEventListener("DOMContentLoaded", function() {
+        updateHighscoreDisplay();
+
+        var playBtn = document.getElementById("playBtn");
+        var howToBtn = document.getElementById("howToBtn");
+        var closeHowToBtn = document.getElementById("closeHowToBtn");
+        var overlay = document.getElementById("howToOverlay");
+
+        // Use pointerdown for instant response on mobile
+        function onTap(el, fn) {
+          if (!el) return;
+          el.addEventListener("pointerdown", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            fn(e);
+          }, { passive: false });
+        }
+
+        onTap(playBtn, startGame);
+        onTap(howToBtn, openHowTo);
+        onTap(closeHowToBtn, closeHowTo);
+
+        // Close overlay when tapping the dark background
+        onTap(overlay, function(e) {
+          if (e.target === overlay) closeHowTo();
+        });
+
+        // Close overlay with Escape key (desktop)
+        document.addEventListener("keydown", function(e) {
+          if (e.key === "Escape") closeHowTo();
+        });
+
+        window.addEventListener("storage", function(e) {
+          if (e.key === "squareDefenceHighscore") {
+            updateHighscoreDisplay();
+          }
+        });
+      });
+
+    })();
+  </script>
+
+</body>
+</html>
