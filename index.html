@@ -328,7 +328,7 @@
       line-height: 1.5;
       z-index: 10;
       pointer-events: none;
-      min-width: 120px;
+      min-width: 130px;
       box-shadow: 0 0 12px rgba(0, 0, 0, 0.8);
     }
 
@@ -349,8 +349,9 @@
       color: #ddd;
     }
 
-    .chance-row .chance-color { color: #ff4040; font-weight: 700; }
-    .chance-row .chance-pct   { color: #ffd700; }
+    .chance-row .chance-color-red    { color: #ff4040; font-weight: 700; }
+    .chance-row .chance-color-orange { color: #ff9020; font-weight: 700; }
+    .chance-row .chance-pct          { color: #ffd700; }
 
     /* Shop overlay inside game */
     #shopOverlay {
@@ -417,6 +418,14 @@
       background: #e00000;
       border: 2px solid #ff5555;
       box-shadow: 0 0 12px #f00;
+    }
+
+    .item-icon.orange {
+      width: 56px;
+      height: 56px;
+      background: #f07800;
+      border: 2px solid #ffb347;
+      box-shadow: 0 0 18px #ff7b00;
     }
 
     .item-info { flex: 1; min-width: 0; }
@@ -504,7 +513,14 @@
 
     #notification.show { opacity: 1; }
 
-    /* In-game timer — mirrors Destroy Squares */
+    #notification.increase {
+      color: #ffe94a;
+      text-shadow: 0 0 14px #ffea00, 0 0 28px #ffb700;
+      font-size: clamp(14px, 2.4vw, 20px);
+      border-color: #ffe94a;
+    }
+
+    /* In-game timer */
     #gameTimer {
       position: absolute;
       left: 12px;
@@ -517,6 +533,22 @@
       font-size: clamp(12px, 1.5vw, 16px);
       z-index: 10;
       pointer-events: none;
+    }
+
+    /* Screen-wide golden flash */
+    .increaseFlash {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 21;
+      background: radial-gradient(circle at 50% 50%, rgba(255,233,74,0.25), rgba(255,180,0,0) 70%);
+      animation: increaseFlashAnim 1.2s ease-out forwards;
+    }
+
+    @keyframes increaseFlashAnim {
+      0%   { opacity: 0; }
+      20%  { opacity: 1; }
+      100% { opacity: 0; }
     }
 
     /* ----------------------------------------------------------
@@ -533,6 +565,19 @@
     }
 
     /* ----------------------------------------------------------
+       ORANGE SQUARE ENEMY
+       ---------------------------------------------------------- */
+    .orangeSquare {
+      position: absolute;
+      background: #f07800;
+      border: 2px solid #ffb347;
+      box-shadow: 0 0 18px #ff7b00;
+      z-index: 12;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    /* ----------------------------------------------------------
        RED CIRCLE DEFENDER
        ---------------------------------------------------------- */
     .redCircle {
@@ -541,6 +586,21 @@
       background: #e00000;
       border: 2px solid #ff5555;
       box-shadow: 0 0 12px #f00;
+      z-index: 11;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    /* ----------------------------------------------------------
+       ORANGE CIRCLE DEFENDER
+       Bigger, with thicker border and stronger orange glow
+       ---------------------------------------------------------- */
+    .orangeCircle {
+      position: absolute;
+      border-radius: 50%;
+      background: #f07800;
+      border: 3px solid #ffb347;
+      box-shadow: 0 0 22px #ff7b00, 0 0 44px rgba(255,123,0,0.35);
       z-index: 11;
       pointer-events: none;
       overflow: visible;
@@ -567,7 +627,9 @@
     }
 
     .redSquare .hpBar { top: -10px; }
+    .orangeSquare .hpBar { top: -10px; }
     .redCircle .hpBar { top: -10px; }
+    .orangeCircle .hpBar { top: -10px; height: 6px; }
 
     .redProjectile {
       position: absolute;
@@ -575,6 +637,16 @@
       background: #ff4040;
       border: 2px solid #ffcccc;
       box-shadow: 0 0 12px #ff0000, 0 0 24px #ff0000;
+      z-index: 13;
+      pointer-events: none;
+    }
+
+    .orangeProjectile {
+      position: absolute;
+      border-radius: 50%;
+      background: #ff9020;
+      border: 3px solid #ffd8a0;
+      box-shadow: 0 0 16px #ff7b00, 0 0 32px #ff7b00, 0 0 48px rgba(255,123,0,0.5);
       z-index: 13;
       pointer-events: none;
     }
@@ -587,6 +659,10 @@
       pointer-events: none;
       z-index: 6;
       animation: rangeFade 1.2s ease-out forwards;
+    }
+
+    .rangeRing.orange {
+      border: 2px dashed rgba(255, 145, 60, 0.7);
     }
 
     @keyframes rangeFade {
@@ -616,6 +692,11 @@
       box-shadow: 0 0 20px #f00, 0 0 40px #f00 inset;
     }
 
+    .spawnRing.orange {
+      border: 3px solid #ffb347;
+      box-shadow: 0 0 20px #ff7b00, 0 0 40px #ff7b00 inset;
+    }
+
     .hitRing {
       position: absolute;
       border-radius: 50%;
@@ -632,6 +713,11 @@
     .hitRing.red {
       border: 2px solid #ff5555;
       box-shadow: 0 0 14px #f00, 0 0 22px #f00 inset;
+    }
+
+    .hitRing.orange {
+      border: 3px solid #ffb347;
+      box-shadow: 0 0 18px #ff7b00, 0 0 28px #ff7b00 inset;
     }
 
     .hitFlash {
@@ -652,6 +738,11 @@
       box-shadow: 0 0 20px #ff2020;
     }
 
+    .hitFlash.orange {
+      background: radial-gradient(circle, #ffc080dd, #ff7b0000 70%);
+      box-shadow: 0 0 22px #ff7b00;
+    }
+
     .hitSpark {
       position: absolute;
       border-radius: 50%;
@@ -662,6 +753,11 @@
     .hitSpark.red {
       background: #ff4040;
       box-shadow: 0 0 8px #ff2020;
+    }
+
+    .hitSpark.orange {
+      background: #ff9020;
+      box-shadow: 0 0 10px #ff7b00;
     }
 
     .deathPuff {
@@ -682,6 +778,11 @@
       box-shadow: 0 0 30px #ff2020;
     }
 
+    .deathPuff.orange {
+      background: radial-gradient(circle, rgba(255,160,60,.9), rgba(255,120,0,0) 65%);
+      box-shadow: 0 0 32px #ff7b00;
+    }
+
     .deathShard {
       position: absolute;
       pointer-events: none;
@@ -692,6 +793,11 @@
     .deathShard.red {
       background: #ff4040;
       box-shadow: 0 0 10px #ff2020;
+    }
+
+    .deathShard.orange {
+      background: #ff9020;
+      box-shadow: 0 0 12px #ff7b00;
     }
 
     .scorePopup {
@@ -872,12 +978,7 @@
 
       <div id="chancePanel">
         <h3>SPAWN CHANCES</h3>
-        <div id="chanceList">
-          <div class="chance-row">
-            <span class="chance-color">Red Square</span>
-            <span class="chance-pct">100%</span>
-          </div>
-        </div>
+        <div id="chanceList"></div>
       </div>
 
       <div id="gameTimer">Time: 00:00</div>
@@ -891,9 +992,18 @@
             <div class="item-icon"></div>
             <div class="item-info">
               <h4>Red Circle</h4>
-              <div class="desc">A basic defender with 3 HP. Fires at nearby enemies. Costs 0 the first time, then 10 afterwards.</div>
+              <div class="desc">A basic defender with 3 HP. Fires fast for 1 damage. Costs 0 the first time, then 10 afterwards.</div>
             </div>
             <button class="buy-btn" id="buyRedBtn" type="button">BUY 0</button>
+          </div>
+
+          <div class="shop-item" id="orangeCircleItem">
+            <div class="item-icon orange"></div>
+            <div class="item-info">
+              <h4>Orange Circle</h4>
+              <div class="desc">Bigger, tankier defender with 6 HP. Slower fire rate but fires bigger bullets for 2 damage each, and has 10 more range than the Red Circle. Costs 25.</div>
+            </div>
+            <button class="buy-btn" id="buyOrangeBtn" type="button">BUY 25</button>
           </div>
 
           <button id="closeShopBtn" type="button">CLOSE</button>
@@ -932,10 +1042,12 @@
       var shopOverlay   = document.getElementById("shopOverlay");
       var shopScoreVal  = document.getElementById("shopScoreVal");
       var buyRedBtn     = document.getElementById("buyRedBtn");
+      var buyOrangeBtn  = document.getElementById("buyOrangeBtn");
       var closeShopBtn  = document.getElementById("closeShopBtn");
       var notification  = document.getElementById("notification");
       var arena         = document.getElementById("arena");
       var gameTimerEl   = document.getElementById("gameTimer");
+      var chanceListEl  = document.getElementById("chanceList");
 
       var gameOverOverlay = document.getElementById("gameOverOverlay");
       var finalScoreVal   = document.getElementById("finalScoreVal");
@@ -959,6 +1071,7 @@
       var gameLoopId = null;
       var lastFrame = 0;
       var placingDefender = false;
+      var placingKind = null;   // "red" or "orange"
 
       var RAINBOW_SIZE = 100;
 
@@ -968,18 +1081,80 @@
       var shopOpenedAt = 0;
       var timerInterval = null;
 
-      // Balance
-      var DEFENDER_HP = 3;
-      var DEFENDER_RANGE = 220;
-      var DEFENDER_FIRE_MS = 900;
-      var PROJECTILE_DAMAGE = 1;
+      var notifiedMinutes = {};
+
+      // ---- Spawn cascade state ----
+      var RED_FIXED = 1.0;
+      var ORANGE_FIXED = 0.0;
+
+      // Balance — Red square enemy
       var ENEMY_HP = 3;
       var ENEMY_SPEED = 55;
       var ENEMY_ATTACK_RANGE = 40;
       var ENEMY_ATTACK_MS = 1000;
+      var ENEMY_DAMAGE = 1;
+
+      // Balance — Orange square enemy (6 HP, slower, 2 damage)
+      var ORANGE_HP = 6;
+      var ORANGE_SPEED = 35;
+      var ORANGE_POINTS = 3;
+      var ORANGE_DAMAGE = 2;
+
+      // ---- Red Circle tower ----
+      var RED_CIRCLE_HP = 3;
+      var RED_CIRCLE_RANGE = 220;
+      var RED_CIRCLE_FIRE_MS = 900;
+      var RED_CIRCLE_DAMAGE = 1;
+      var RED_CIRCLE_SIZE = 36;
+      var RED_CIRCLE_PROJ_SIZE = 12;
+
+      // ---- Orange Circle tower (NEW) ----
+      var ORANGE_CIRCLE_COST = 25;         // flat every purchase
+      var ORANGE_CIRCLE_HP = 6;
+      var ORANGE_CIRCLE_RANGE = 230;       // 10 more than Red's 220
+      var ORANGE_CIRCLE_FIRE_MS = 1500;    // slower than Red's 900
+      var ORANGE_CIRCLE_DAMAGE = 2;        // 2 damage per shot
+      var ORANGE_CIRCLE_SIZE = 48;         // bigger than Red's 36
+      var ORANGE_CIRCLE_PROJ_SIZE = 18;    // bigger bullet
 
       /* ============================================================
-         TIMER HELPERS
+         SPAWN CHANCES
+         ============================================================ */
+      function getSpawnChances() {
+        var red = RED_FIXED;
+        var orange = ORANGE_FIXED;
+
+        var total = red + orange;
+        if (total > 1) {
+          red /= total;
+          orange /= total;
+        } else if (total < 1) {
+          red += (1 - total);
+        }
+
+        return [
+          { key: "red",    name: "Red Square",    chance: red,    colorClass: "chance-color-red" },
+          { key: "orange", name: "Orange Square", chance: orange, colorClass: "chance-color-orange" }
+        ];
+      }
+
+      function updateChancePanel() {
+        if (!chanceListEl) return;
+        var list = getSpawnChances();
+        var html = "";
+        for (var i = 0; i < list.length; i++) {
+          var item = list[i];
+          var pct = (item.chance * 100).toFixed(1);
+          html += '<div class="chance-row">' +
+                    '<span class="' + item.colorClass + '">' + item.name + '</span>' +
+                    '<span class="chance-pct">' + pct + '%</span>' +
+                  '</div>';
+        }
+        chanceListEl.innerHTML = html;
+      }
+
+      /* ============================================================
+         TIMER
          ============================================================ */
       function elapsedMs() {
         if (!gameStartTime) return 0;
@@ -996,6 +1171,11 @@
         gameTimerEl.textContent = "Time: " +
           String(m).padStart(2, "0") + ":" +
           String(sec).padStart(2, "0");
+
+        if (m >= 1 && !notifiedMinutes[m]) {
+          notifiedMinutes[m] = true;
+          onMinuteTick(m);
+        }
       }
 
       function startTimerLoop() {
@@ -1006,6 +1186,26 @@
 
       function stopTimerLoop() {
         if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+      }
+
+      function onMinuteTick(m) {
+        if (gameOver) return;
+        showNotification("SPAWN CHANCES INCREASED!", "increase");
+
+        try { ensureAudio();
+          tone(660, 0.14, "sine", 0.10, 0.00);
+          tone(880, 0.14, "sine", 0.09, 0.10);
+          tone(1320, 0.22, "sine", 0.08, 0.20);
+          sweep(600, 1800, 0.4, "triangle", 0.05, 0.02);
+          noiseBurst(0.25, 0.05, 0.05);
+        } catch (e) {}
+
+        var flash = document.createElement("div");
+        flash.className = "increaseFlash";
+        arena.appendChild(flash);
+        setTimeout(function() { if (flash.parentNode) flash.parentNode.removeChild(flash); }, 1250);
+
+        updateChancePanel();
       }
 
       /* ============================================================
@@ -1025,9 +1225,7 @@
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
           } catch (e) { audioCtx = null; }
         }
-        if (audioCtx && audioCtx.state === "suspended") {
-          audioCtx.resume();
-        }
+        if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
         if (audioCtx && !musicMaster) {
           musicMaster = audioCtx.createGain();
           musicMaster.gain.value = 0.55;
@@ -1177,6 +1375,8 @@
       /* ============================================================
          SOUND EFFECTS
          ============================================================ */
+
+      /* ----- Red Square enemy ----- */
       function redSquareSpawnSound() {
         try { ensureAudio();
           sweep(180, 520, 0.18, "square", 0.09);
@@ -1185,7 +1385,6 @@
           tone(340, 0.06, "sine", 0.06, 0.12);
         } catch (e) {}
       }
-
       function redSquareHitSound() {
         try { ensureAudio();
           tone(520, 0.045, "square", 0.075, 0);
@@ -1193,7 +1392,6 @@
           noiseBurst(0.04, 0.05, 0);
         } catch (e) {}
       }
-
       function redSquareDeathSound() {
         try { ensureAudio();
           sweep(480, 90, 0.28, "sawtooth", 0.10);
@@ -1201,7 +1399,6 @@
           noiseBurst(0.14, 0.06, 0.02);
         } catch (e) {}
       }
-
       function redSquareAttackSound() {
         try { ensureAudio();
           tone(260, 0.08, "square", 0.09, 0);
@@ -1210,6 +1407,38 @@
         } catch (e) {}
       }
 
+      /* ----- Orange Square enemy (unused for now, ready for later) ----- */
+      function orangeSquareSpawnSound() {
+        try { ensureAudio();
+          sweep(260, 700, 0.20, "square", 0.09);
+          sweep(320, 880, 0.18, "sawtooth", 0.05, 0.03);
+          noiseBurst(0.07, 0.05, 0);
+          tone(440, 0.07, "sine", 0.06, 0.14);
+        } catch (e) {}
+      }
+      function orangeSquareHitSound() {
+        try { ensureAudio();
+          tone(620, 0.05, "square", 0.075, 0);
+          tone(280, 0.07, "triangle", 0.055, 0.01);
+          noiseBurst(0.05, 0.05, 0);
+        } catch (e) {}
+      }
+      function orangeSquareDeathSound() {
+        try { ensureAudio();
+          sweep(560, 110, 0.30, "sawtooth", 0.10);
+          tone(180, 0.20, "square", 0.07, 0.05);
+          noiseBurst(0.16, 0.06, 0.02);
+        } catch (e) {}
+      }
+      function orangeSquareAttackSound() {
+        try { ensureAudio();
+          tone(320, 0.09, "square", 0.09, 0);
+          sweep(500, 200, 0.11, "sawtooth", 0.06, 0.01);
+          noiseBurst(0.06, 0.05, 0);
+        } catch (e) {}
+      }
+
+      /* ----- Red Circle tower ----- */
       function redCircleSpawnSound() {
         try { ensureAudio();
           tone(660, 0.10, "sine", 0.10, 0);
@@ -1218,7 +1447,6 @@
           sweep(440, 1200, 0.20, "triangle", 0.05, 0.02);
         } catch (e) {}
       }
-
       function redCircleHitSound() {
         try { ensureAudio();
           tone(300, 0.06, "square", 0.08, 0);
@@ -1226,7 +1454,6 @@
           noiseBurst(0.05, 0.05, 0);
         } catch (e) {}
       }
-
       function redCircleDeathSound() {
         try { ensureAudio();
           sweep(700, 120, 0.32, "sawtooth", 0.10);
@@ -1235,11 +1462,57 @@
           tone(140, 0.24, "sine", 0.06, 0.10);
         } catch (e) {}
       }
-
       function redCircleShootSound() {
         try { ensureAudio();
           tone(880, 0.04, "square", 0.06, 0);
           sweep(1200, 600, 0.06, "sine", 0.04, 0.01);
+        } catch (e) {}
+      }
+
+      /* ----- Orange Circle tower (NEW — heavier, thumpy) ----- */
+      function orangeCircleSpawnSound() {
+        try { ensureAudio();
+          // Deeper, richer spawn: descending warm chord + soft thump
+          tone(440, 0.12, "sine", 0.10, 0);
+          tone(660, 0.14, "sine", 0.09, 0.06);
+          tone(880, 0.18, "sine", 0.08, 0.14);
+          tone(1100, 0.22, "triangle", 0.06, 0.22);
+          sweep(320, 900, 0.28, "triangle", 0.06, 0.02);
+          // Low warm body
+          tone(160, 0.28, "sine", 0.09, 0.02);
+          tone(120, 0.34, "sine", 0.07, 0.10);
+          noiseBurst(0.10, 0.045, 0.02);
+        } catch (e) {}
+      }
+      function orangeCircleHitSound() {
+        try { ensureAudio();
+          // Heavier thud with a metallic edge
+          tone(220, 0.08, "square", 0.10, 0);
+          tone(140, 0.11, "triangle", 0.09, 0.02);
+          tone(90, 0.14, "sine", 0.08, 0.04);
+          sweep(380, 180, 0.12, "sawtooth", 0.06, 0.01);
+          noiseBurst(0.07, 0.06, 0);
+        } catch (e) {}
+      }
+      function orangeCircleDeathSound() {
+        try { ensureAudio();
+          // Long descending warm collapse
+          sweep(900, 100, 0.45, "sawtooth", 0.11);
+          sweep(600, 80, 0.5, "triangle", 0.08, 0.06);
+          tone(240, 0.28, "square", 0.09, 0.04);
+          tone(160, 0.34, "sine", 0.09, 0.14);
+          tone(100, 0.42, "sine", 0.08, 0.26);
+          noiseBurst(0.22, 0.07, 0.03);
+          noiseBurst(0.16, 0.05, 0.20);
+        } catch (e) {}
+      }
+      function orangeCircleShootSound() {
+        try { ensureAudio();
+          // Heavier shoot: low blast + warm high chirp
+          tone(180, 0.09, "square", 0.10, 0);
+          sweep(900, 400, 0.10, "sawtooth", 0.07, 0.01);
+          tone(1200, 0.05, "sine", 0.05, 0.02);
+          noiseBurst(0.05, 0.05, 0);
         } catch (e) {}
       }
 
@@ -1253,7 +1526,7 @@
       }
 
       /* ============================================================
-         SONG DATA
+         SONG
          ============================================================ */
       var KICK_PATTERN = [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0];
       var KICK_EXTRA   = [0,0,0,0, 0,0,1,0, 0,0,0,0, 0,1,0,0];
@@ -1378,13 +1651,14 @@
       /* ============================================================
          NOTIFICATION
          ============================================================ */
-      function showNotification(text) {
+      function showNotification(text, className) {
         notification.textContent = text;
+        notification.className = className || "";
         notification.classList.add("show");
         if (notificationTimeout) clearTimeout(notificationTimeout);
         notificationTimeout = setTimeout(function() {
           notification.classList.remove("show");
-        }, 2200);
+        }, 2600);
       }
 
       /* ============================================================
@@ -1410,25 +1684,26 @@
       /* ============================================================
          SHOP
          ============================================================ */
-      function redCirclePrice() {
-        return redCircleBought ? 10 : 0;
-      }
+      function redCirclePrice() { return redCircleBought ? 10 : 0; }
+      function orangeCirclePrice() { return ORANGE_CIRCLE_COST; }
 
       function updateShopUI() {
         shopScoreVal.textContent = score;
-        var price = redCirclePrice();
-        buyRedBtn.textContent = "BUY " + price;
-        buyRedBtn.disabled = score < price;
+
+        var rprice = redCirclePrice();
+        buyRedBtn.textContent = "BUY " + rprice;
+        buyRedBtn.disabled = score < rprice;
+
+        var oprice = orangeCirclePrice();
+        buyOrangeBtn.textContent = "BUY " + oprice;
+        buyOrangeBtn.disabled = score < oprice;
       }
 
       function openShop() {
         if (gameOver) return;
         updateShopUI();
-
         shopOpenedAt = Date.now();
-
         if (spawnTimer) { clearTimeout(spawnTimer); spawnTimer = null; }
-
         shopOverlay.classList.add("open");
         shopOpen = true;
         updateGameTimerDisplay();
@@ -1439,20 +1714,16 @@
           shopOverlay.classList.remove("open");
           return;
         }
-
         if (shopOpenedAt) {
           totalPausedMs += Date.now() - shopOpenedAt;
           shopOpenedAt = 0;
         }
-
         shopOverlay.classList.remove("open");
         shopOpen = false;
-
         if (!gameOver) {
           clearTimeout(spawnTimer);
           scheduleNextSpawn();
         }
-
         updateGameTimerDisplay();
       }
 
@@ -1476,6 +1747,21 @@
         updateShopUI();
         showNotification("TAP THE MAP TO PLACE RED CIRCLE");
         placingDefender = true;
+        placingKind = "red";
+        arena.classList.add("placing");
+        closeShop();
+      });
+
+      addTap(buyOrangeBtn, function() {
+        if (gameOver) return;
+        var price = orangeCirclePrice();
+        if (score < price) return;
+        score -= price;
+        scoreVal.textContent = score;
+        updateShopUI();
+        showNotification("TAP THE MAP TO PLACE ORANGE CIRCLE");
+        placingDefender = true;
+        placingKind = "orange";
         arena.classList.add("placing");
         closeShop();
       });
@@ -1497,8 +1783,9 @@
         var x = clientX - rect.left;
         var y = clientY - rect.top;
 
-        placeDefender(x, y);
+        placeDefender(x, y, placingKind);
         placingDefender = false;
+        placingKind = null;
         arena.classList.remove("placing");
       }
 
@@ -1508,7 +1795,7 @@
       /* ============================================================
          HELPERS
          ============================================================ */
-      function makeHpBar(size) {
+      function makeHpBar() {
         var bar = document.createElement("div");
         bar.className = "hpBar";
         var fill = document.createElement("div");
@@ -1529,46 +1816,62 @@
       /* ============================================================
          DEFENDER
          ============================================================ */
-      function placeDefender(cx, cy) {
-        var size = 36;
+      function placeDefender(cx, cy, kind) {
+        var size = (kind === "orange") ? ORANGE_CIRCLE_SIZE : RED_CIRCLE_SIZE;
         var x = Math.max(size/2, Math.min(arena.clientWidth - size/2, cx));
         var y = Math.max(size/2, Math.min(arena.clientHeight - size/2, cy));
 
         var el = document.createElement("div");
-        el.className = "redCircle";
+        el.className = (kind === "orange") ? "orangeCircle" : "redCircle";
         el.style.width = size + "px";
         el.style.height = size + "px";
         el.style.left = (x - size/2) + "px";
         el.style.top  = (y - size/2) + "px";
 
-        var hp = makeHpBar(size);
+        var hp = makeHpBar();
         el.appendChild(hp.bar);
         arena.appendChild(el);
+
+        var range = (kind === "orange") ? ORANGE_CIRCLE_RANGE : RED_CIRCLE_RANGE;
+        var maxHealth = (kind === "orange") ? ORANGE_CIRCLE_HP : RED_CIRCLE_HP;
+        var fireMs = (kind === "orange") ? ORANGE_CIRCLE_FIRE_MS : RED_CIRCLE_FIRE_MS;
+        var dmg = (kind === "orange") ? ORANGE_CIRCLE_DAMAGE : RED_CIRCLE_DAMAGE;
+        var projSize = (kind === "orange") ? ORANGE_CIRCLE_PROJ_SIZE : RED_CIRCLE_PROJ_SIZE;
 
         var d = {
           el: el,
           x: x,
           y: y,
           size: size,
-          health: DEFENDER_HP,
-          maxHealth: DEFENDER_HP,
-          range: DEFENDER_RANGE,
+          kind: kind,
+          health: maxHealth,
+          maxHealth: maxHealth,
+          range: range,
+          fireMs: fireMs,
+          damage: dmg,
+          projSize: projSize,
           lastShot: 0,
           hpBar: hp,
           dying: false
         };
         defenders.push(d);
 
-        redCircleSpawnSound();
-        spawnEffect(x, y, size * 2.2, "rgba(255,60,60,");
+        if (kind === "orange") {
+          orangeCircleSpawnSound();
+          spawnEffect(x, y, size * 2.4, "orange");
+        } else {
+          redCircleSpawnSound();
+          spawnEffect(x, y, size * 2.2, "red");
+        }
 
+        // Range indicator
         var rr = document.createElement("div");
-        rr.className = "rangeRing";
-        var rrSize = DEFENDER_RANGE * 2;
+        rr.className = "rangeRing" + (kind === "orange" ? " orange" : "");
+        var rrSize = range * 2;
         rr.style.width = rrSize + "px";
         rr.style.height = rrSize + "px";
-        rr.style.left = (x - DEFENDER_RANGE) + "px";
-        rr.style.top  = (y - DEFENDER_RANGE) + "px";
+        rr.style.left = (x - range) + "px";
+        rr.style.top  = (y - range) + "px";
         arena.appendChild(rr);
         setTimeout(function() { if (rr.parentNode) rr.parentNode.removeChild(rr); }, 1300);
       }
@@ -1577,8 +1880,15 @@
         if (d.dying) return;
         d.health -= amount;
         updateHpBar(d.hpBar, d.health, d.maxHealth);
-        redCircleHitSound();
-        hitEffect(d.x, d.y, d.size, "red");
+
+        if (d.kind === "orange") {
+          orangeCircleHitSound();
+          hitEffect(d.x, d.y, d.size, "orange");
+        } else {
+          redCircleHitSound();
+          hitEffect(d.x, d.y, d.size, "red");
+        }
+
         if (d.health <= 0) {
           killDefender(d);
         }
@@ -1587,15 +1897,22 @@
       function killDefender(d) {
         if (d.dying) return;
         d.dying = true;
-        redCircleDeathSound();
-        deathEffect(d.x, d.y, d.size, "red");
+
+        if (d.kind === "orange") {
+          orangeCircleDeathSound();
+          deathEffect(d.x, d.y, d.size, "orange");
+        } else {
+          redCircleDeathSound();
+          deathEffect(d.x, d.y, d.size, "red");
+        }
+
         if (d.el.parentNode) d.el.parentNode.removeChild(d.el);
         var idx = defenders.indexOf(d);
         if (idx >= 0) defenders.splice(idx, 1);
       }
 
       /* ============================================================
-         ENEMY — Red Square
+         ENEMIES
          ============================================================ */
       function spawnRedSquare() {
         if (gameOver || shopOpen) return;
@@ -1611,7 +1928,7 @@
         el.style.left = (x - size/2) + "px";
         el.style.top  = (y - size/2) + "px";
 
-        var hp = makeHpBar(size);
+        var hp = makeHpBar();
         el.appendChild(hp.bar);
         arena.appendChild(el);
 
@@ -1624,6 +1941,8 @@
           maxHealth: ENEMY_HP,
           speed: ENEMY_SPEED,
           hpBar: hp,
+          kind: "red",
+          damage: ENEMY_DAMAGE,
           lastAttack: 0,
           attackTarget: null,
           dying: false
@@ -1631,32 +1950,85 @@
         enemies.push(e);
 
         redSquareSpawnSound();
-        spawnEffect(x, y, size * 2.2, "rgba(255,60,60,");
+        spawnEffect(x, y, size * 2.2, "red");
+      }
+
+      function spawnOrangeSquare() {
+        if (gameOver || shopOpen) return;
+
+        var size = 42;
+        var x = arena.clientWidth - size;
+        var y = size/2 + Math.random() * (arena.clientHeight - size);
+
+        var el = document.createElement("div");
+        el.className = "orangeSquare";
+        el.style.width = size + "px";
+        el.style.height = size + "px";
+        el.style.left = (x - size/2) + "px";
+        el.style.top  = (y - size/2) + "px";
+
+        var hp = makeHpBar();
+        el.appendChild(hp.bar);
+        arena.appendChild(el);
+
+        var e = {
+          el: el,
+          x: x,
+          y: y,
+          size: size,
+          health: ORANGE_HP,
+          maxHealth: ORANGE_HP,
+          speed: ORANGE_SPEED,
+          hpBar: hp,
+          kind: "orange",
+          damage: ORANGE_DAMAGE,
+          lastAttack: 0,
+          attackTarget: null,
+          dying: false
+        };
+        enemies.push(e);
+
+        orangeSquareSpawnSound();
+        spawnEffect(x, y, size * 2.2, "orange");
       }
 
       function damageEnemy(en, amount) {
         if (en.dying) return;
         en.health -= amount;
         updateHpBar(en.hpBar, en.health, en.maxHealth);
-        redSquareHitSound();
-        hitEffect(en.x, en.y, en.size, "red");
-        if (en.health <= 0) {
-          killEnemy(en);
+
+        if (en.kind === "orange") {
+          orangeSquareHitSound();
+          hitEffect(en.x, en.y, en.size, "orange");
+        } else {
+          redSquareHitSound();
+          hitEffect(en.x, en.y, en.size, "red");
         }
+
+        if (en.health <= 0) killEnemy(en);
       }
 
       function killEnemy(en) {
         if (en.dying) return;
         en.dying = true;
-        redSquareDeathSound();
-        deathEffect(en.x, en.y, en.size, "red");
+
+        var points = (en.kind === "orange") ? ORANGE_POINTS : 1;
+
+        if (en.kind === "orange") {
+          orangeSquareDeathSound();
+          deathEffect(en.x, en.y, en.size, "orange");
+        } else {
+          redSquareDeathSound();
+          deathEffect(en.x, en.y, en.size, "red");
+        }
+
         if (en.el.parentNode) en.el.parentNode.removeChild(en.el);
         var idx = enemies.indexOf(en);
         if (idx >= 0) enemies.splice(idx, 1);
 
-        score += 1;
+        score += points;
         scoreVal.textContent = score;
-        scorePopup(en.x, en.y, 1);
+        scorePopup(en.x, en.y, points);
         if (shopOpen) updateShopUI();
       }
 
@@ -1664,16 +2036,16 @@
          PROJECTILES
          ============================================================ */
       function fireProjectile(d, target) {
-        var speed = 400;
+        var speed = (d.kind === "orange") ? 340 : 400; // orange bullet slightly slower
         var dx = target.x - d.x;
         var dy = target.y - d.y;
         var dist = Math.sqrt(dx*dx + dy*dy) || 1;
         var vx = dx / dist * speed;
         var vy = dy / dist * speed;
 
-        var size = 12;
+        var size = d.projSize;
         var el = document.createElement("div");
-        el.className = "redProjectile";
+        el.className = (d.kind === "orange") ? "orangeProjectile" : "redProjectile";
         el.style.width = size + "px";
         el.style.height = size + "px";
         el.style.left = (d.x - size/2) + "px";
@@ -1688,18 +2060,23 @@
           vy: vy,
           size: size,
           target: target,
-          damage: PROJECTILE_DAMAGE
+          damage: d.damage,
+          kind: d.kind
         });
 
-        redCircleShootSound();
+        if (d.kind === "orange") {
+          orangeCircleShootSound();
+        } else {
+          redCircleShootSound();
+        }
       }
 
       /* ============================================================
          EFFECTS
          ============================================================ */
-      function spawnEffect(x, y, size, colorPrefix) {
+      function spawnEffect(x, y, size, color) {
         var el = document.createElement("div");
-        el.className = "spawnRing red";
+        el.className = "spawnRing " + (color || "red");
         el.style.width = size + "px";
         el.style.height = size + "px";
         el.style.left = (x - size/2) + "px";
@@ -1709,8 +2086,10 @@
       }
 
       function hitEffect(x, y, size, color) {
+        color = color || "red";
+
         var ring = document.createElement("div");
-        ring.className = "hitRing red";
+        ring.className = "hitRing " + color;
         var rs = size * 1.6;
         ring.style.width = rs + "px";
         ring.style.height = rs + "px";
@@ -1720,7 +2099,7 @@
         setTimeout(function() { if (ring.parentNode) ring.parentNode.removeChild(ring); }, 350);
 
         var flash = document.createElement("div");
-        flash.className = "hitFlash red";
+        flash.className = "hitFlash " + color;
         var fs = size * 1.1;
         flash.style.width = fs + "px";
         flash.style.height = fs + "px";
@@ -1733,7 +2112,7 @@
           (function(i) {
             var a = Math.random() * Math.PI * 2;
             var sp = document.createElement("div");
-            sp.className = "hitSpark red";
+            sp.className = "hitSpark " + color;
             var ss = 5;
             sp.style.width = ss + "px";
             sp.style.height = ss + "px";
@@ -1757,8 +2136,10 @@
       }
 
       function deathEffect(x, y, size, color) {
+        color = color || "red";
+
         var puff = document.createElement("div");
-        puff.className = "deathPuff red";
+        puff.className = "deathPuff " + color;
         var ps = size * 2.2;
         puff.style.width = ps + "px";
         puff.style.height = ps + "px";
@@ -1771,7 +2152,7 @@
           (function(i) {
             var a = Math.random() * Math.PI * 2;
             var sh = document.createElement("div");
-            sh.className = "deathShard red";
+            sh.className = "deathShard " + color;
             var ss = 6;
             sh.style.width = ss + "px";
             sh.style.height = ss + "px";
@@ -1853,7 +2234,13 @@
               if (nearestDist <= ENEMY_ATTACK_RANGE) {
                 if (now - en.lastAttack >= ENEMY_ATTACK_MS) {
                   en.lastAttack = now;
-                  redSquareAttackSound();
+
+                  if (en.kind === "orange") {
+                    orangeSquareAttackSound();
+                  } else {
+                    redSquareAttackSound();
+                  }
+
                   var ndx = nearestDef.x - en.x;
                   var ndy = nearestDef.y - en.y;
                   var nd = Math.sqrt(ndx*ndx + ndy*ndy) || 1;
@@ -1871,7 +2258,8 @@
                       }
                     };
                   })(en, ndx, ndy, nd), 100);
-                  damageDefender(nearestDef, 1);
+
+                  damageDefender(nearestDef, en.damage);
                 }
                 continue;
               }
@@ -1905,7 +2293,7 @@
         for (var i = 0; i < defenders.length; i++) {
           var d = defenders[i];
           if (d.dying) continue;
-          if (now - d.lastShot < DEFENDER_FIRE_MS) continue;
+          if (now - d.lastShot < d.fireMs) continue;
 
           var best = null;
           var bestDist = Infinity;
@@ -1997,9 +2385,25 @@
         clearTimeout(spawnTimer);
         spawnTimer = setTimeout(function() {
           if (gameOver || shopOpen) return;
-          spawnRedSquare();
+          spawnEnemy();
           scheduleNextSpawn();
         }, spawnIntervalMs);
+      }
+
+      function spawnEnemy() {
+        var list = getSpawnChances();
+        var roll = Math.random();
+        var acc = 0;
+        var chosen = "red";
+        for (var i = 0; i < list.length; i++) {
+          acc += list[i].chance;
+          if (roll < acc) {
+            chosen = list[i].key;
+            break;
+          }
+        }
+        if (chosen === "orange") spawnOrangeSquare();
+        else spawnRedSquare();
       }
 
       function updateSpawnTimerDisplay() {
@@ -2033,7 +2437,7 @@
          START / STOP
          ============================================================ */
       function clearArena() {
-        var toRemove = arena.querySelectorAll(".redSquare, .redCircle, .redProjectile, .spawnRing, .hitRing, .hitFlash, .hitSpark, .deathPuff, .deathShard, .scorePopup, .rangeRing");
+        var toRemove = arena.querySelectorAll(".redSquare, .orangeSquare, .redCircle, .orangeCircle, .redProjectile, .orangeProjectile, .spawnRing, .hitRing, .hitFlash, .hitSpark, .deathPuff, .deathShard, .scorePopup, .rangeRing, .increaseFlash");
         for (var i = 0; i < toRemove.length; i++) {
           if (toRemove[i].parentNode) toRemove[i].parentNode.removeChild(toRemove[i]);
         }
@@ -2045,6 +2449,7 @@
         gameOver = false;
         shopOpen = false;
         placingDefender = false;
+        placingKind = null;
         enemies = [];
         defenders = [];
         projectiles = [];
@@ -2053,6 +2458,7 @@
         gameStartTime = Date.now();
         totalPausedMs = 0;
         shopOpenedAt = 0;
+        notifiedMinutes = {};
 
         clearArena();
         scoreVal.textContent = "0";
@@ -2061,6 +2467,7 @@
         shopOverlay.classList.remove("open");
         gameOverOverlay.classList.remove("open");
         updateShopUI();
+        updateChancePanel();
 
         menuScreen.style.display = "none";
         gameScreen.classList.add("active");
@@ -2104,4 +2511,4 @@
   </script>
 
 </body>
-  </html>
+</html>
