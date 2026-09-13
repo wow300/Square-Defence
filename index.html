@@ -8,9 +8,8 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     html, body {
-      height: 100%;
+      min-height: 100%;
       width: 100%;
-      overflow: hidden;
       background: #0a0a0a;
       font-family: Arial, 'Segoe UI', system-ui, sans-serif;
       color: #eee;
@@ -18,16 +17,31 @@
       -webkit-tap-highlight-color: transparent;
     }
 
+    /* Allow scrolling when content overflows */
+    body {
+      overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      background: #050505;
+    }
+
+    /* Center content when it fits, scroll when it doesn't */
     body {
       display: flex;
       align-items: center;
       justify-content: center;
-      background: radial-gradient(circle at 20% 30%, #141414, #050505 90%);
-      position: relative;
+      min-height: 100vh;
+      min-height: 100dvh; /* modern dynamic viewport height */
+      padding: 16px 0;
     }
 
-    /* REMOVED: animated grid — it was causing repaint cost */
-    /* REMOVED: floating decorative squares — they were causing repaint cost */
+    /* When the menu is taller than the screen, the flex centering
+       would clip the top — this prevents that. */
+    @supports (min-height: 100dvh) {
+      body {
+        min-height: 100dvh;
+      }
+    }
 
     /* ----- MENU CONTAINER ----- */
     .menu {
@@ -43,6 +57,7 @@
       border-radius: 20px;
       box-shadow: 0 0 25px rgba(255, 40, 40, 0.2);
       width: min(90vw, 560px);
+      flex-shrink: 0;
     }
 
     .title {
@@ -115,16 +130,11 @@
       width: min(100%, 300px);
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
-      box-shadow: none;
-      /* fast press feedback */
-      transition: background 0.05s;
     }
 
-    .btn:hover { background: #f22; }
-    .btn:active { background: #b00; transform: scale(0.98); }
+    .btn:active { background: #b00; }
 
     .btn.secondary { background: #1a7a1a; border-color: #3fb83f; }
-    .btn.secondary:hover { background: #26a326; }
     .btn.secondary:active { background: #0e5a0e; }
 
     .footer-note {
@@ -138,12 +148,12 @@
       width: 70%;
     }
 
-    /* ---------- HOW TO PLAY OVERLAY (lightweight) ---------- */
+    /* ---------- HOW TO PLAY OVERLAY ---------- */
     #howToOverlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.9);
+      background: rgba(0, 0, 0, 0.92);
       z-index: 100;
       align-items: center;
       justify-content: center;
@@ -162,6 +172,7 @@
       width: min(94vw, 520px);
       max-height: 90vh;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
       text-align: center;
       box-shadow: 0 0 30px rgba(255, 200, 60, 0.35);
     }
@@ -183,9 +194,7 @@
       text-align: left;
     }
 
-    .overlay-panel p strong {
-      color: #ff8080;
-    }
+    .overlay-panel p strong { color: #ff8080; }
 
     .close-btn {
       background: #444;
@@ -203,8 +212,7 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    .close-btn:hover { background: #555; }
-    .close-btn:active { background: #333; transform: scale(0.97); }
+    .close-btn:active { background: #333; }
 
     /* ---------- RESPONSIVE ---------- */
     @media (orientation: landscape) and (max-height: 520px) {
@@ -234,6 +242,17 @@
       .btn { padding: 0.7rem 1.4rem; font-size: 1rem; letter-spacing: 1px; }
       .footer-note { font-size: 0.6rem; }
     }
+
+    /* Very short screens (e.g. landscape phones) — reduce spacing further */
+    @media (max-height: 400px) {
+      .menu { padding: 1rem 1.2rem 0.8rem; }
+      .title { font-size: clamp(1.6rem, 5vw, 2.4rem); }
+      .subtitle { margin-bottom: 0.8rem; padding-bottom: 0.4rem; }
+      .stats { margin-bottom: 0.8rem; }
+      .button-group { margin-bottom: 0.8rem; gap: 0.6rem; }
+      .btn { padding: 0.6rem 1.2rem; font-size: 0.95rem; }
+      .footer-note { padding-top: 0.5rem; }
+    }
   </style>
 </head>
 <body>
@@ -250,8 +269,8 @@
     </div>
 
     <div class="button-group">
-      <button class="btn" id="playBtn">PLAY</button>
-      <button class="btn secondary" id="howToBtn">HOW TO PLAY</button>
+      <button class="btn" id="playBtn" type="button">PLAY</button>
+      <button class="btn secondary" id="howToBtn" type="button">HOW TO PLAY</button>
     </div>
 
     <div class="footer-note">
@@ -259,7 +278,6 @@
     </div>
   </div>
 
-  <!-- HOW TO PLAY OVERLAY -->
   <div id="howToOverlay">
     <div class="overlay-panel">
       <h2>How to Play</h2>
@@ -269,7 +287,7 @@
         There are <strong>bosses</strong> too so watch out.<br><br>
         <strong>THIS IS AN ENDLESS GAME SO DON'T LOSE.</strong>
       </p>
-      <button class="close-btn" id="closeHowToBtn">CLOSE</button>
+      <button class="close-btn" id="closeHowToBtn" type="button">CLOSE</button>
     </div>
   </div>
 
@@ -277,64 +295,59 @@
     (function() {
       "use strict";
 
-      function getHighscore() {
-        return Number(localStorage.getItem("squareDefenceHighscore")) || 0;
-      }
+      var overlay = document.getElementById("howToOverlay");
+      var playBtn = document.getElementById("playBtn");
+      var howToBtn = document.getElementById("howToBtn");
+      var closeHowToBtn = document.getElementById("closeHowToBtn");
+      var highscoreEl = document.getElementById("menuHighscore");
 
-      function updateHighscoreDisplay() {
-        var el = document.getElementById("menuHighscore");
-        if (el) el.textContent = getHighscore();
+      function getHighscore() {
+        try {
+          return Number(localStorage.getItem("squareDefenceHighscore")) || 0;
+        } catch (e) {
+          return 0;
+        }
       }
+      highscoreEl.textContent = getHighscore();
+
+      function openHowTo() { overlay.classList.add("open"); }
+      function closeHowTo() { overlay.classList.remove("open"); }
 
       function startGame() {
         alert("Square Defence will start here.\n\n(Full game coming soon.)");
       }
 
-      function openHowTo() {
-        document.getElementById("howToOverlay").classList.add("open");
-      }
-
-      function closeHowTo() {
-        document.getElementById("howToOverlay").classList.remove("open");
-      }
-
-      document.addEventListener("DOMContentLoaded", function() {
-        updateHighscoreDisplay();
-
-        var playBtn = document.getElementById("playBtn");
-        var howToBtn = document.getElementById("howToBtn");
-        var closeHowToBtn = document.getElementById("closeHowToBtn");
-        var overlay = document.getElementById("howToOverlay");
-
-        // Use pointerdown for instant response on mobile
-        function onTap(el, fn) {
-          if (!el) return;
-          el.addEventListener("pointerdown", function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            fn(e);
-          }, { passive: false });
+      function addTap(el, fn) {
+        if (!el) return;
+        var fired = false;
+        function handler(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (fired) return;
+          fired = true;
+          setTimeout(function() { fired = false; }, 400);
+          fn(e);
         }
+        el.addEventListener("click", handler, false);
+        el.addEventListener("touchend", handler, false);
+      }
 
-        onTap(playBtn, startGame);
-        onTap(howToBtn, openHowTo);
-        onTap(closeHowToBtn, closeHowTo);
+      addTap(playBtn, startGame);
+      addTap(howToBtn, openHowTo);
+      addTap(closeHowToBtn, closeHowTo);
 
-        // Close overlay when tapping the dark background
-        onTap(overlay, function(e) {
-          if (e.target === overlay) closeHowTo();
-        });
+      overlay.addEventListener("click", function(e) {
+        if (e.target === overlay) closeHowTo();
+      });
+      overlay.addEventListener("touchend", function(e) {
+        if (e.target === overlay) {
+          e.preventDefault();
+          closeHowTo();
+        }
+      }, false);
 
-        // Close overlay with Escape key (desktop)
-        document.addEventListener("keydown", function(e) {
-          if (e.key === "Escape") closeHowTo();
-        });
-
-        window.addEventListener("storage", function(e) {
-          if (e.key === "squareDefenceHighscore") {
-            updateHighscoreDisplay();
-          }
-        });
+      document.addEventListener("keydown", function(e) {
+        if (e.key === "Escape") closeHowTo();
       });
 
     })();
