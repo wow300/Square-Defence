@@ -699,6 +699,7 @@
   var enemyProjectiles = [];
   var spawnTimer = null;
   var spawnEndsAt = 0;
+  var spawnRemainingOnPause = null;
   var gameLoopId = null;
   var lastFrame = 0;
   var placingDefender = false;
@@ -722,9 +723,9 @@
      Once Orange hits 100% and can't give ground any more, Purple decays at 0.04/min.
      Red fills whatever's left.
   ----------------------------------- */
-  var GROWTH_ORANGE = 0.20;
-  var GROWTH_PURPLE = 0.12;
-  var DECAY_RATE    = 0.04;
+  var GROWTH_ORANGE = 0.08;
+  var GROWTH_PURPLE = 0.045;
+  var DECAY_RATE    = 0.015;
 
   /* ---------- Balance ---------- */
   var ENEMY_HP = 3;
@@ -774,7 +775,7 @@
      SPAWN CHANCES — now driven purely by WHOLE MINUTES elapsed
      ============================================================ */
   function getSpawnChances() {
-    var m = Math.floor(elapsedMs() / 60000);
+    var m = elapsedMs() / 60000;
 
     var orangeWant = GROWTH_ORANGE * m;
     var purpleWant = GROWTH_PURPLE * m;
@@ -1346,7 +1347,7 @@
     if (gameOver) return;
     updateShopUI();
     shopOpenedAt = Date.now();
-    if (spawnTimer) { clearTimeout(spawnTimer); spawnTimer = null; }
+    if (spawnTimer) { spawnRemainingOnPause = Math.max(0, spawnEndsAt - Date.now()); clearTimeout(spawnTimer); spawnTimer = null; }
     shopOverlay.classList.add("open");
     shopOpen = true;
     updateGameTimerDisplay();
@@ -1362,8 +1363,10 @@
     shopOpen = false;
     // Resume spawn timer with only the remaining time left
     if (!gameOver) {
-      var remaining = Math.max(0, spawnEndsAt - Date.now());
+      var remaining = spawnRemainingOnPause == null ? Math.max(0, spawnEndsAt - Date.now()) : spawnRemainingOnPause;
+      spawnRemainingOnPause = null;
       clearTimeout(spawnTimer);
+      spawnEndsAt = Date.now() + remaining;
       spawnTimer = setTimeout(onSpawnTick, remaining);
     }
     updateGameTimerDisplay();
@@ -1634,8 +1637,8 @@
   function fireProjectile(d, target) {
     if (d.kind === "purple") {
       var baseAngle = Math.atan2(target.y - d.y, target.x - d.x);
-      spawnProjectile(d, baseAngle - PURPLE_CIRCLE_SPREAD_RAD, target);
-      spawnProjectile(d, baseAngle + PURPLE_CIRCLE_SPREAD_RAD, target);
+      spawnProjectile(d, baseAngle - PURPLE_CIRCLE_SPREAD_RAD, null);
+      spawnProjectile(d, baseAngle + PURPLE_CIRCLE_SPREAD_RAD, null);
       purpleCircleShootSound();
     } else {
       spawnProjectile(d, Math.atan2(target.y - d.y, target.x - d.x), target);
