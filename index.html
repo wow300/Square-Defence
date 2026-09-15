@@ -723,9 +723,9 @@
      Once Orange hits 100% and can't give ground any more, Purple decays at 0.04/min.
      Red fills whatever's left.
   ----------------------------------- */
-  var GROWTH_ORANGE = 0.08;
-  var GROWTH_PURPLE = 0.045;
-  var DECAY_RATE    = 0.015;
+  var GROWTH_ORANGE = 0.03;
+  var GROWTH_PURPLE = 0.015;
+  var DECAY_RATE    = 0.005;
 
   /* ---------- Balance ---------- */
   var ENEMY_HP = 3;
@@ -772,7 +772,7 @@
   var PURPLE_CIRCLE_SPREAD_RAD = 0.28;
 
   /* ============================================================
-     SPAWN CHANCES — now driven purely by WHOLE MINUTES elapsed
+     SPAWN CHANCES — slow continuous changes over elapsed time
      ============================================================ */
   function getSpawnChances() {
     var m = elapsedMs() / 60000;
@@ -1925,6 +1925,26 @@
         if (tdist < (p.size/2 + p.target.size/2)) {
           damageEnemy(p.target, p.damage);
           hit = true;
+        }
+      } else {
+        // Unguided/missed projectiles still collide with any tower or enemy.
+        for (var ei = enemies.length - 1; ei >= 0 && !hit; ei--) {
+          var en = enemies[ei];
+          if (en.dying) continue;
+          var edx = en.x - p.x, edy = en.y - p.y;
+          if (Math.sqrt(edx*edx + edy*edy) < (p.size/2 + en.size/2)) {
+            damageEnemy(en, p.damage);
+            hit = true;
+          }
+        }
+        for (var di = defenders.length - 1; di >= 0 && !hit; di--) {
+          var def = defenders[di];
+          if (def.dying) continue;
+          var ddx = def.x - p.x, ddy = def.y - p.y;
+          if (Math.sqrt(ddx*ddx + ddy*ddy) < (p.size/2 + def.size/2)) {
+            damageDefender(def, p.damage);
+            hit = true;
+          }
         }
       }
       if (p.x < -50 || p.x > arena.clientWidth + 50 ||
